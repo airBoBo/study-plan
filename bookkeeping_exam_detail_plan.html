@@ -1,0 +1,458 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px}
+.hdr{background:#534AB7;border-radius:var(--border-radius-lg);padding:1.1rem 1.4rem;margin-bottom:1rem;color:#EEEDFE}
+.hdr h1{font-size:18px;font-weight:500;color:#EEEDFE;margin-bottom:4px}
+.hdr p{font-size:12px;color:#AFA9EC}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.hbadge{background:rgba(255,255,255,0.15);border-radius:20px;padding:3px 10px;font-size:11px;color:#EEEDFE}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.sc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.6rem .8rem;text-align:center}
+.sn{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.sl{font-size:10px;color:var(--color-text-secondary);margin-top:2px}
+.prog-wrap{display:flex;align-items:center;gap:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.65rem 1rem;margin-bottom:1rem}
+.prog-lbl{font-size:12px;color:var(--color-text-secondary);white-space:nowrap}
+.pb{height:6px;background:var(--color-border-tertiary);border-radius:3px;flex:1}
+.pbf{height:100%;background:#7F77DD;border-radius:3px;transition:width .3s}
+.prog-pct{font-size:12px;font-weight:500;color:#534AB7;min-width:32px;text-align:right}
+.tabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.tab{padding:5px 12px;border-radius:20px;border:0.5px solid var(--color-border-secondary);font-size:12px;cursor:pointer;color:var(--color-text-secondary);background:var(--color-background-primary)}
+.tab.active{background:#534AB7;color:#EEEDFE;border-color:#534AB7}
+.panel{display:none}
+.panel.active{display:block}
+/* subject overview */
+.subj-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.scard{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.85rem 1rem}
+.scard-head{display:flex;align-items:center;gap:8px;margin-bottom:.6rem}
+.scard-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.scard-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.scard-weight{font-size:10px;padding:2px 7px;border-radius:10px;margin-left:auto}
+.ch-list{list-style:none;padding:0}
+.ch-item{font-size:11px;color:var(--color-text-secondary);padding:3px 0;border-bottom:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.ch-item:last-child{border-bottom:none}
+.ch-item .pt{font-size:10px;color:#534AB7;margin-left:4px}
+/* week blocks */
+.wb{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:.75rem;overflow:hidden}
+.wh{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;background:var(--color-background-secondary);cursor:pointer;user-select:none}
+.wht{font-size:13px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:6px}
+.wbadge{font-size:10px;padding:2px 8px;border-radius:10px}
+.wprog{font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;gap:6px}
+.wpb{width:60px;height:4px;background:var(--color-border-tertiary);border-radius:2px}
+.wpbf{height:100%;background:#7F77DD;border-radius:2px}
+.wbody{padding:.75rem 1rem;display:none}
+.day-block{margin-bottom:.85rem;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden}
+.day-head{display:flex;align-items:center;justify-content:space-between;padding:.5rem .85rem;background:var(--color-background-secondary)}
+.day-date{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.day-done-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:#E1F5EE;color:#0F6E56;display:none}
+.session{padding:.5rem .85rem;border-top:0.5px solid var(--color-border-tertiary)}
+.session-lbl{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.task-row{display:flex;align-items:flex-start;gap:8px;padding:3px 0}
+.task-cb{flex-shrink:0;width:15px;height:15px;margin-top:1px;accent-color:#534AB7;cursor:pointer}
+.task-txt{font-size:12px;color:var(--color-text-primary);line-height:1.5}
+.task-txt.done{text-decoration:line-through;opacity:.45}
+.tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px;vertical-align:middle}
+.ta{background:#E1F5EE;color:#0F6E56}
+.tt{background:#FAEEDA;color:#854F0B}
+.tl{background:#FBEAF0;color:#993556}
+.tc{background:#E6F1FB;color:#185FA5}
+.tr{background:#FCEBEB;color:#A32D2D}
+.tg{background:#F1EFE8;color:#5F5E5A}
+.quote{background:var(--color-background-secondary);border-left:2px solid #7F77DD;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:.5rem .85rem;margin:.5rem 0;font-size:11px;color:var(--color-text-secondary);font-style:italic}
+.tip-box{background:#EEEDFE;border-radius:var(--border-radius-md);padding:.75rem 1rem;margin-bottom:1rem}
+.tip-box h3{font-size:13px;font-weight:500;color:#3C3489;margin-bottom:.5rem}
+.tip-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tip-item{background:rgba(255,255,255,0.6);border-radius:var(--border-radius-md);padding:.5rem .75rem;font-size:11px;color:#3C3489;line-height:1.6}
+.tip-item b{display:block;font-weight:500;margin-bottom:2px}
+.today-marker{font-size:10px;background:#534AB7;color:#EEEDFE;border-radius:8px;padding:1px 6px;margin-left:6px}
+.rest-day{padding:.5rem .85rem;font-size:12px;color:var(--color-text-secondary);font-style:italic}
+</style>
+
+<h2 class="sr-only">記帳士考試詳細讀書計畫，每日早中晚分段，含各科章節考點</h2>
+
+<div class="hdr">
+  <h1><i class="ti ti-book-2" aria-hidden="true"></i> 記帳士詳細讀書計畫</h1>
+  <p>每日6小時 · 早中晚分段 · 含各科章節考點</p>
+  <div class="badges">
+    <span class="hbadge"><i class="ti ti-calendar-event" aria-hidden="true"></i> 報名 8/4–8/13</span>
+    <span class="hbadge"><i class="ti ti-writing" aria-hidden="true"></i> 考試 11/14–11/16</span>
+    <span class="hbadge"><i class="ti ti-clock" aria-hidden="true"></i> 每日6小時</span>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="sc"><div class="sn" id="s-total">0</div><div class="sl">讀書天</div></div>
+  <div class="sc"><div class="sn" id="s-done">0</div><div class="sl">已完成任務</div></div>
+  <div class="sc"><div class="sn" id="s-remain">-</div><div class="sl">距開學天數</div></div>
+  <div class="sc"><div class="sn" id="s-exam">-</div><div class="sl">距考試天數</div></div>
+</div>
+
+<div class="prog-wrap">
+  <span class="prog-lbl"><i class="ti ti-trophy" aria-hidden="true"></i> 整體進度</span>
+  <div class="pb"><div class="pbf" id="main-pb" style="width:0%"></div></div>
+  <span class="prog-pct" id="main-pct">0%</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('plan')">📅 讀書計畫</div>
+  <div class="tab" onclick="switchTab('subjects')">📚 科目章節</div>
+  <div class="tab" onclick="switchTab('tips')">💡 讀書技巧</div>
+</div>
+
+<!-- SUBJECTS PANEL -->
+<div class="panel" id="panel-subjects">
+  <div class="subj-grid" id="subj-container"></div>
+</div>
+
+<!-- TIPS PANEL -->
+<div class="panel" id="panel-tips">
+  <div class="tip-box">
+    <h3>每日時段安排建議</h3>
+    <div class="tip-grid">
+      <div class="tip-item"><b>🌅 早上 9:00–12:00（3小時）</b>大腦最清醒，安排最難的科目。會計學概要、租稅申報實務優先放早上。每50分鐘休息10分鐘。</div>
+      <div class="tip-item"><b>🌞 下午 14:00–16:00（2小時）</b>飯後稍微休息再讀。安排法規類（記帳相關法規、稅務法規），偏記憶型，下午適合。</div>
+      <div class="tip-item"><b>🌙 晚上 19:00–20:00（1小時）</b>整理早上/下午錯題，複習當日重點。睡前重看筆記，幫助記憶鞏固。</div>
+      <div class="tip-item"><b>📵 手機管理</b>讀書時把手機放另一個房間或交給爸媽。可用 Forest App 種樹計時，打卡成就感強。</div>
+    </div>
+  </div>
+  <div class="tip-box" style="background:#E1F5EE">
+    <h3 style="color:#0F6E56">考有底子的人這樣衝刺</h3>
+    <div class="tip-grid">
+      <div class="tip-item" style="background:rgba(255,255,255,0.6);color:#085041"><b>🎯 先做歷屆試題摸底</b>考過幾次代表某些科目已有基礎。每科先做一回近5年試題，找出真正的弱點章節，再針對性補強。</div>
+      <div class="tip-item" style="background:rgba(255,255,255,0.6);color:#085041"><b>📊 會計申論題重點</b>分錄、財報分析、成本計算是高分關鍵。申論題要練習「寫得完整」，不是只有算對。</div>
+      <div class="tip-item" style="background:rgba(255,255,255,0.6);color:#085041"><b>📝 國文作文不要輕忽</b>佔10%但很多人低分。每週練一篇議論文，租稅政策、誠信倫理是常見題材。</div>
+      <div class="tip-item" style="background:rgba(255,255,255,0.6);color:#085041"><b>⚠ 任一科0分即不及格</b>五科都要及格！切勿為了拼某科高分而放棄其他科。</div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAN PANEL -->
+<div class="panel active" id="panel-plan">
+  <div id="weeks-container"></div>
+</div>
+
+<script>
+const SUBJECTS = [
+  {
+    id:'acc', name:'會計學概要', cls:'ta', dot:'#1D9E75', weight:'30%（申論+測驗）',
+    wbg:'#E1F5EE', wtc:'#0F6E56',
+    chapters:[
+      {ch:'Ch1 會計基本概念',pts:['會計恆等式','借貸法則','帳戶分類']},
+      {ch:'Ch2 交易分析與分錄',pts:['各類交易分錄','調整分錄（應收/應付/預收/預付）','折舊分錄']},
+      {ch:'Ch3 財務報表編製',pts:['損益表','資產負債表','保留盈餘表','現金流量表概念']},
+      {ch:'Ch4 存貨',pts:['先進先出法','加權平均法','移動平均法','存貨評估（成本與淨變現價值孰低）']},
+      {ch:'Ch5 應收帳款與壞帳',pts:['備抵壞帳法','直接沖銷法','帳齡分析表']},
+      {ch:'Ch6 固定資產',pts:['取得成本','折舊方法（直線/倍率/年數加總）','資產處分分錄']},
+      {ch:'Ch7 負債',pts:['流動負債分類','應付公司債','租賃']},
+      {ch:'Ch8 業主權益',pts:['股本/保留盈餘','股利發放','每股盈餘EPS']},
+      {ch:'Ch9 財務報表分析',pts:['流動比率/速動比率','負債比率','獲利能力指標']},
+    ]
+  },
+  {
+    id:'tax-r', name:'租稅申報實務', cls:'tt', dot:'#EF9F27', weight:'25%（申論）',
+    wbg:'#FAEEDA', wtc:'#854F0B',
+    chapters:[
+      {ch:'Ch1 綜合所得稅申報',pts:['所得類別（10類）','免稅額/扣除額','計算公式與稅率']},
+      {ch:'Ch2 營利事業所得稅',pts:['課稅所得計算','未分配盈餘','兩稅合一制度']},
+      {ch:'Ch3 營業稅申報',pts:['銷項稅額/進項稅額','統一發票使用','退稅申請']},
+      {ch:'Ch4 地價稅/房屋稅',pts:['課稅標準','納稅義務人','減免規定']},
+      {ch:'Ch5 遺產稅與贈與稅',pts:['免稅額','遺產總額計算','贈與稅申報期限']},
+      {ch:'Ch6 印花稅/娛樂稅',pts:['課稅憑證類型','稅率','申報方式']},
+    ]
+  },
+  {
+    id:'tax-l', name:'稅務相關法規概要', cls:'tt', dot:'#BA7517', weight:'15%（測驗）',
+    wbg:'#FAEEDA', wtc:'#854F0B',
+    chapters:[
+      {ch:'Ch1 稅捐稽徵法',pts:['核課期間','徵收期間','補稅/罰鍰','行政救濟']},
+      {ch:'Ch2 所得稅法重點',pts:['課稅主體','所得來源','扣繳制度']},
+      {ch:'Ch3 加值型營業稅法',pts:['應稅/免稅/零稅率','稅額計算','申報期限']},
+      {ch:'Ch4 土地稅法',pts:['地價稅','土地增值稅','減免條件']},
+      {ch:'Ch5 房屋稅條例',pts:['稅率','住家/非住家','申報義務']},
+    ]
+  },
+  {
+    id:'law', name:'記帳相關法規概要', cls:'tl', dot:'#D4537E', weight:'15%（測驗）',
+    wbg:'#FBEAF0', wtc:'#993556',
+    chapters:[
+      {ch:'Ch1 記帳士法',pts:['記帳士資格','業務範圍','禁止行為','懲戒規定']},
+      {ch:'Ch2 商業會計法',pts:['商業帳簿種類','會計憑證','財務報表申報']},
+      {ch:'Ch3 商業會計處理準則',pts:['資產/負債/權益認列','收益費損原則']},
+      {ch:'Ch4 行政程序法（第二章）',pts:['行政處分定義','撤銷/廢止','陳述意見']},
+      {ch:'Ch5 公司法/商業登記法',pts:['公司種類與設立','董事會','商業登記程序']},
+      {ch:'Ch6 記帳士職業倫理',pts:['執業態度','保密義務','利益迴避']},
+    ]
+  },
+  {
+    id:'chi', name:'國文（作文）', cls:'tc', dot:'#378ADD', weight:'10%（申論）',
+    wbg:'#E6F1FB', wtc:'#185FA5',
+    chapters:[
+      {ch:'作文基礎結構',pts:['起承轉合','論點明確','首尾呼應']},
+      {ch:'租稅誠信類題材',pts:['納稅義務','逃漏稅危害','誠信社會']},
+      {ch:'職業倫理類題材',pts:['專業責任','倫理困境','公益精神']},
+      {ch:'社會時事類題材',pts:['稅改政策','中小企業扶植','數位經濟']},
+      {ch:'佳句與修辭練習',pts:['排比/對偶','引用名言','數字佐證手法']},
+    ]
+  },
+];
+
+function renderSubjects(){
+  const c = document.getElementById('subj-container');
+  c.innerHTML = '';
+  SUBJECTS.forEach(s=>{
+    const el = document.createElement('div');
+    el.className='scard';
+    let chHtml = s.chapters.map(ch=>`<li class="ch-item">▸ ${ch.ch}<br><span style="font-size:10px;color:var(--color-text-secondary);padding-left:8px">${ch.pts.join('・')}</span></li>`).join('');
+    el.innerHTML=`<div class="scard-head">
+      <div class="scard-dot" style="background:${s.dot}"></div>
+      <span class="scard-title">${s.name}</span>
+      <span class="scard-weight tag ${s.cls}">${s.weight}</span>
+    </div>
+    <ul class="ch-list">${chHtml}</ul>`;
+    c.appendChild(el);
+  });
+}
+
+// Build schedule
+const START = new Date(2026,5,26);
+const END_SCH = new Date(2026,7,29);
+const EXAM_DATE = new Date(2026,10,14);
+
+const quotes = [
+  "你已經考過幾次，底子在，這次補上細節，一定過。",
+  "每個錯題都是禮物——找到它，改掉它，它就不再扣你的分。",
+  "申論題不是只有算對，更要寫完整。今天練一題，考場多5分。",
+  "稅法條文背的不只是文字，而是背後的邏輯。理解了就忘不掉。",
+  "累了就休息，但不要停太久。暑假每天都是機會。",
+  "距離考試還有時間，但每天都在縮短。今天讀的，就是優勢。",
+  "記帳士錄取率13%，你有底子，你就是那13%裡的人。",
+  "作文不能靠運氣，要靠每週的練習。今天寫一篇吧！",
+  "五科都要過，不能放棄任何一科。均衡才是真正的準備。",
+  "報名8月初，記得提前準備好資料，不要讓繁瑣手續耽誤考試。",
+];
+
+function dateKey(d){return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`}
+function formatDate(d){const D=['日','一','二','三','四','五','六'];return `${d.getMonth()+1}/${d.getDate()}（週${D[d.getDay()]}）`}
+
+// subject rotation for deep focus
+const ROTATIONS = [
+  // week 1-2: 會計打底
+  {am:[{s:'acc',t:'會計 Ch1–Ch2',cls:'ta'},{s:'acc',t:'會計 Ch3 財報',cls:'ta'}], pm:[{s:'law',t:'記帳法規 Ch1 記帳士法',cls:'tl'}], eve:[{s:'chi',t:'國文：起承轉合結構練習',cls:'tc'}]},
+  {am:[{s:'acc',t:'會計 Ch4 存貨',cls:'ta'},{s:'acc',t:'會計 Ch5 應收帳款',cls:'ta'}], pm:[{s:'law',t:'記帳法規 Ch2 商業會計法',cls:'tl'}], eve:[{s:'acc',t:'複習Ch1–Ch5錯題',cls:'ta'}]},
+  // week 3-4: 稅務法規
+  {am:[{s:'tax-l',t:'稅務法規 Ch1 稽徵法',cls:'tt'},{s:'tax-l',t:'稅務法規 Ch2 所得稅法',cls:'tt'}], pm:[{s:'acc',t:'會計 Ch6 固定資產',cls:'ta'}], eve:[{s:'law',t:'記帳法規 Ch3 會計處理準則',cls:'tl'}]},
+  {am:[{s:'tax-l',t:'稅務法規 Ch3 營業稅法',cls:'tt'},{s:'tax-l',t:'稅務法規 Ch4–Ch5 土地稅/房屋稅',cls:'tt'}], pm:[{s:'acc',t:'會計 Ch7–Ch8 負債/權益',cls:'ta'}], eve:[{s:'chi',t:'國文：租稅誠信題材寫作',cls:'tc'}]},
+  // week 5-6: 租稅申報
+  {am:[{s:'tax-r',t:'租稅申報 Ch1 綜合所得稅',cls:'tt'},{s:'tax-r',t:'租稅申報 Ch2 營所稅',cls:'tt'}], pm:[{s:'tax-l',t:'稅務法規 複習測驗練習',cls:'tt'}], eve:[{s:'acc',t:'會計 Ch9 財報分析',cls:'ta'}]},
+  {am:[{s:'tax-r',t:'租稅申報 Ch3 營業稅申報',cls:'tt'},{s:'tax-r',t:'租稅申報 Ch4–Ch6 地價稅/遺贈稅',cls:'tt'}], pm:[{s:'law',t:'記帳法規 Ch4–Ch5 行政程序/公司法',cls:'tl'}], eve:[{s:'chi',t:'國文：職業倫理題材寫作',cls:'tc'}]},
+  // week 7-8: 整合衝刺
+  {am:[{s:'acc',t:'會計 歷屆試題全回合',cls:'ta'},{s:'tax-r',t:'租稅申報 歷屆試題全回合',cls:'tt'}], pm:[{s:'tax-l',t:'稅務法規 歷屆試題全回合',cls:'tt'}], eve:[{s:'law',t:'記帳法規 歷屆試題全回合',cls:'tl'}]},
+  {am:[{s:'acc',t:'會計 弱點章節精攻',cls:'ta'},{s:'tax-r',t:'租稅申報 申論題練寫',cls:'tt'}], pm:[{s:'law',t:'記帳法規 弱點章節精攻',cls:'tl'}], eve:[{s:'chi',t:'國文 作文模擬練習',cls:'tc'}]},
+  // week 9+: 全科綜合模擬
+  {am:[{s:'acc',t:'全科綜合模擬考（上午場）',cls:'ta'},{s:'tax-r',t:'全科綜合模擬考（繼續）',cls:'tt'}], pm:[{s:'tax-l',t:'對答案 + 錯題記錄',cls:'tt'}], eve:[{s:'law',t:'重點法條快速過',cls:'tl'}]},
+];
+
+const SCHEDULE = [];
+let d = new Date(START);
+let rotIdx = 0;
+let dayCount = 0;
+
+while(d <= END_SCH){
+  const dow = d.getDay();
+  const dd = new Date(d);
+  const isRegPeriod = d.getMonth()===7 && d.getDate()>=4 && d.getDate()<=13;
+
+  if(d.getMonth()===7 && d.getDate()===30){
+    SCHEDULE.push({date:new Date(dd),type:'special',label:'明天開學，今天輕鬆整理書包，早點休息 🎒'});
+    d.setDate(d.getDate()+1); continue;
+  }
+
+  if(dow===0){
+    // Sunday: light review
+    SCHEDULE.push({date:new Date(dd), type:'sunday'});
+    d.setDate(d.getDate()+1); continue;
+  }
+
+  const ri = Math.min(Math.floor(dayCount/5), ROTATIONS.length-1);
+  const rot = ROTATIONS[ri];
+  const reg = isRegPeriod && d.getDate()===4;
+  SCHEDULE.push({date:new Date(dd), type:'normal', rot, isReg:reg, dayCount});
+  dayCount++;
+  d.setDate(d.getDate()+1);
+}
+
+const STORAGE_KEY = 'bk_plan_v3';
+let checked = {};
+try{const s=localStorage.getItem(STORAGE_KEY);if(s)checked=JSON.parse(s);}catch(e){}
+function saveChecked(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(checked));}catch(e){}}
+
+function taskKey(dk, session, idx){return `${dk}__${session}__${idx}`}
+
+function getTaskKeys(item){
+  if(item.type!=='normal') return [];
+  const dk = dateKey(item.date);
+  const keys=[];
+  ['am','pm','eve'].forEach(s=>{
+    (item.rot[s]||[]).forEach((_,i)=>keys.push(taskKey(dk,s,i)));
+  });
+  return keys;
+}
+
+function countTotal(){
+  let t=0;
+  SCHEDULE.forEach(item=>{if(item.type==='normal'){['am','pm','eve'].forEach(s=>{t+=(item.rot[s]||[]).length});}});
+  return t;
+}
+
+function countDone(){return Object.values(checked).filter(Boolean).length;}
+
+function updateStats(){
+  const done = countDone();
+  const total = countTotal();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const remSch = Math.max(0,Math.ceil((END_SCH-today)/86400000));
+  const remExam = Math.max(0,Math.ceil((EXAM_DATE-today)/86400000));
+  document.getElementById('s-total').textContent = SCHEDULE.filter(i=>i.type==='normal').length;
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-remain').textContent = remSch;
+  document.getElementById('s-exam').textContent = remExam;
+  const pct = total>0?Math.round(done/total*100):0;
+  document.getElementById('main-pb').style.width = pct+'%';
+  document.getElementById('main-pct').textContent = pct+'%';
+}
+
+function groupByWeek(schedule){
+  const weeks=[]; let w=[];
+  schedule.forEach((item,i)=>{
+    w.push({...item,idx:i});
+    if(item.date.getDay()===0||i===schedule.length-1){weeks.push(w);w=[];}
+  });
+  if(w.length)weeks.push(w);
+  return weeks;
+}
+
+const SESSION_LABELS = {
+  am:'🌅 早上 9:00–12:00（3小時）',
+  pm:'🌞 下午 14:00–16:00（2小時）',
+  eve:'🌙 晚上 19:00–20:00（1小時）'
+};
+
+function renderWeeks(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const weeks = groupByWeek(SCHEDULE);
+  const wc = document.getElementById('weeks-container');
+  wc.innerHTML='';
+
+  weeks.forEach((w,wi)=>{
+    const wb = document.createElement('div');
+    wb.className='wb';
+
+    const wKeys = w.flatMap(item=>getTaskKeys(item));
+    const wDone = wKeys.filter(k=>checked[k]).length;
+    const wTotal = wKeys.length;
+    const wpct = wTotal>0?Math.round(wDone/wTotal*100):0;
+
+    const first=w[0].date, last=w[w.length-1].date;
+    const wTitle=`第${wi+1}週 ${first.getMonth()+1}/${first.getDate()}–${last.getMonth()+1}/${last.getDate()}`;
+    const wlabels=['會計打底週','稅務法規週','租稅申報週','衝刺整合週','模擬考週'];
+    const wlab = wlabels[Math.min(Math.floor(wi/2),wlabels.length-1)];
+
+    const isCurrentWeek = w.some(item=>dateKey(item.date)===dateKey(today));
+
+    wb.innerHTML=`<div class="wh" onclick="toggleWeek(${wi})">
+      <div class="wht"><i class="ti ti-calendar-week" aria-hidden="true"></i>${wTitle}<span class="wbadge ta">${wlab}</span></div>
+      <div class="wprog"><div class="wpb"><div class="wpbf" id="wpb-${wi}" style="width:${wpct}%"></div></div><span id="wpc-${wi}" style="font-size:10px;color:var(--color-text-secondary)">${wDone}/${wTotal}</span><i class="ti ti-chevron-down" id="wchev-${wi}" aria-hidden="true" style="transition:transform .2s${isCurrentWeek?';transform:rotate(180deg)':''}"></i></div>
+    </div>
+    <div class="wbody" id="wbody-${wi}" style="display:${isCurrentWeek?'block':'none'}">
+      <div class="quote">${quotes[wi%quotes.length]}</div>
+      <div id="wdays-${wi}"></div>
+    </div>`;
+
+    wc.appendChild(wb);
+
+    const wdays = document.getElementById(`wdays-${wi}`);
+    w.forEach((item,di)=>{
+      const isToday = dateKey(item.date)===dateKey(today);
+      const db = document.createElement('div');
+      db.className='day-block';
+      db.id=`day-${wi}-${di}`;
+
+      if(item.type==='special'||item.type==='sunday'){
+        const lbl = item.type==='sunday'
+          ? '☀️ 週日輕鬆日：整理本週錯題本 + 複習筆記（1小時）'
+          : item.label;
+        db.innerHTML=`<div class="day-head"><span class="day-date">${formatDate(item.date)}${isToday?'<span class="today-marker">今天</span>':''}</span></div><div class="rest-day">${lbl}</div>`;
+      } else {
+        const dk = dateKey(item.date);
+        const dayKeys = getTaskKeys(item);
+        const dayDone = dayKeys.filter(k=>checked[k]).length;
+
+        let sessHtml='';
+        ['am','pm','eve'].forEach(s=>{
+          const tasks = item.rot[s]||[];
+          let tRows = tasks.map((t,i)=>{
+            const k=taskKey(dk,s,i);
+            const isDone=!!checked[k];
+            return `<div class="task-row">
+              <input type="checkbox" class="task-cb" ${isDone?'checked':''} onchange="toggleTask('${k}','${wi}','${di}')" aria-label="${t.t}">
+              <span class="task-txt${isDone?' done':''}" id="tt-${k}">${t.t}<span class="tag ${t.cls}">${t.s==='acc'?'會計':t.s==='tax-r'?'申報':t.s==='tax-l'?'稅法':t.s==='law'?'記帳法規':'國文'}</span></span>
+            </div>`;
+          }).join('');
+          if(item.isReg&&s==='am') tRows+=`<div class="task-row"><input type="checkbox" class="task-cb" ${checked[taskKey(dk,'reg',0)]?'checked':''} onchange="toggleTask('${taskKey(dk,'reg',0)}','${wi}','${di}')"><span class="task-txt${checked[taskKey(dk,'reg',0)]?' done':''}"><span class="tag tr">⚠ 記得今天起報名 8/4–8/13</span></span></div>`;
+          sessHtml+=`<div class="session"><div class="session-lbl">${SESSION_LABELS[s]}</div>${tRows}</div>`;
+        });
+
+        db.innerHTML=`<div class="day-head"><span class="day-date">${formatDate(item.date)}${isToday?'<span class="today-marker">今天</span>':''}</span><span class="day-done-badge" id="badge-${wi}-${di}" style="display:${dayDone===dayKeys.length&&dayKeys.length>0?'inline':'none'}">✅ 全部完成</span></div>${sessHtml}`;
+      }
+      wdays.appendChild(db);
+    });
+  });
+
+  updateStats();
+}
+
+window.toggleWeek = function(wi){
+  const body=document.getElementById(`wbody-${wi}`);
+  const chev=document.getElementById(`wchev-${wi}`);
+  if(!body)return;
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  if(chev)chev.style.transform=open?'':'rotate(180deg)';
+};
+
+window.toggleTask = function(k,wi,di){
+  checked[k]=!checked[k];
+  saveChecked();
+  const el=document.getElementById(`tt-${k}`);
+  if(el){el.classList.toggle('done',checked[k]);}
+
+  const item = SCHEDULE[parseInt(di)+(groupByWeek(SCHEDULE)[parseInt(wi)][0]?0:0)];
+  // recalc week progress
+  const weeks=groupByWeek(SCHEDULE);
+  const w=weeks[parseInt(wi)];
+  if(w){
+    const wKeys=w.flatMap(it=>getTaskKeys(it));
+    const wDone=wKeys.filter(k2=>checked[k2]).length;
+    const wTotal=wKeys.length;
+    const wpct=wTotal>0?Math.round(wDone/wTotal*100):0;
+    const pb=document.getElementById(`wpb-${wi}`);
+    const pc=document.getElementById(`wpc-${wi}`);
+    if(pb)pb.style.width=wpct+'%';
+    if(pc)pc.textContent=`${wDone}/${wTotal}`;
+  }
+
+  updateStats();
+};
+
+window.switchTab = function(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    const ids=['plan','subjects','tips'];
+    el.classList.toggle('active',ids[i]===t);
+  });
+  document.querySelectorAll('.panel').forEach(el=>{el.classList.remove('active');});
+  document.getElementById(`panel-${t}`).classList.add('active');
+};
+
+renderSubjects();
+renderWeeks();
+</script>
